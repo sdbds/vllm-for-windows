@@ -134,10 +134,12 @@ TORCH_LIBRARY_EXPAND(TORCH_EXTENSION_NAME, m) {
   // conditionally compiled so impl registration is in source file
 
   // gpt-oss optimized router GEMM kernel for SM90+
+#ifdef ENABLE_GPT_OSS_ROUTER_GEMM
   m.def(
       "gpt_oss_router_gemm(Tensor! output, Tensor input, Tensor weights, "
       "Tensor bias) -> ()");
   m.impl("gpt_oss_router_gemm", torch::kCUDA, &gpt_oss_router_gemm);
+#endif
 #endif
 }
 

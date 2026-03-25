@@ -2,6 +2,11 @@ include(FetchContent)
 
 set(CUTLASS_INCLUDE_DIR "${CUTLASS_INCLUDE_DIR}" CACHE PATH "Path to CUTLASS include/ directory")
 
+if(WIN32)
+  message(STATUS "[QUTLASS] Skipping build on Windows due to NVCC/MSVC alignment stub issues.")
+  return()
+endif()
+
 if(DEFINED ENV{QUTLASS_SRC_DIR})
   set(QUTLASS_SRC_DIR $ENV{QUTLASS_SRC_DIR})
 endif()

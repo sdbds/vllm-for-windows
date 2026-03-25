@@ -2273,6 +2273,10 @@ def dsv3_router_gemm(
 def gpt_oss_router_gemm(
     hidden_states: torch.Tensor, weight: torch.Tensor, bias: torch.Tensor
 ) -> torch.Tensor:
+    if not (hasattr(torch.ops, "_moe_C")
+            and hasattr(torch.ops._moe_C, "gpt_oss_router_gemm")):
+        return torch.nn.functional.linear(hidden_states, weight, bias)
+
     output = torch.empty(
         hidden_states.shape[0],
         weight.shape[0],

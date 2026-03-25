@@ -563,35 +563,40 @@ if(VLLM_GPU_LANG STREQUAL "CUDA")
 
 
   # The cutlass_scaled_mm kernels for Geforce Blackwell SM120 (c3x, i.e. CUTLASS 3.x) require
-  # CUDA 12.8 or later
-  if(${CMAKE_CUDA_COMPILER_VERSION} VERSION_GREATER_EQUAL 13.0)
-    cuda_archs_loose_intersection(SCALED_MM_ARCHS "12.0f" "${CUDA_ARCHS}")
+  # CUDA 12.8 or later. On Windows, nvcc/MSVC currently fail on the generated
+  # host stubs for these kernels with C2719 alignment errors, so skip them.
+  if(WIN32)
+    message(STATUS "Not building scaled_mm_c3x_sm120 on Windows due to NVCC/MSVC alignment stub issues.")
   else()
-    cuda_archs_loose_intersection(SCALED_MM_ARCHS "12.0a" "${CUDA_ARCHS}")
-  endif()
-  if(${CMAKE_CUDA_COMPILER_VERSION} VERSION_GREATER_EQUAL 12.8 AND SCALED_MM_ARCHS)
-    set(SRCS
-      "csrc/quantization/w8a8/cutlass/scaled_mm_c3x_sm120.cu"
-      "csrc/quantization/w8a8/cutlass/c3x/scaled_mm_sm120_fp8.cu"
-      "csrc/quantization/w8a8/cutlass/c3x/scaled_mm_blockwise_sm120_fp8.cu"
-    )
-    set_gencode_flags_for_srcs(
-      SRCS "${SRCS}"
-      CUDA_ARCHS "${SCALED_MM_ARCHS}")
-    list(APPEND VLLM_EXT_SRC "${SRCS}")
-    list(APPEND VLLM_GPU_FLAGS "-DENABLE_SCALED_MM_SM120=1")
-    # Let scaled_mm_c2x know it doesn't need to build these arches
-    list(APPEND SCALED_MM_3X_ARCHS "${SCALED_MM_ARCHS}")
-    message(STATUS "Building scaled_mm_c3x_sm120 for archs: ${SCALED_MM_ARCHS}")
-  else()
-    if (NOT ${CMAKE_CUDA_COMPILER_VERSION} VERSION_GREATER_EQUAL 12.8 AND SCALED_MM_ARCHS)
-      message(STATUS "Not building scaled_mm_c3x_sm120 as CUDA Compiler version is "
-                     "not >= 12.8, we recommend upgrading to CUDA 12.8 or "
-                     "later if you intend on running FP8 quantized models on "
-                     "Blackwell.")
+    if(${CMAKE_CUDA_COMPILER_VERSION} VERSION_GREATER_EQUAL 13.0)
+      cuda_archs_loose_intersection(SCALED_MM_ARCHS "12.0f" "${CUDA_ARCHS}")
     else()
-      message(STATUS "Not building scaled_mm_c3x_120 as no compatible archs found "
-                     "in CUDA target architectures")
+      cuda_archs_loose_intersection(SCALED_MM_ARCHS "12.0a" "${CUDA_ARCHS}")
+    endif()
+    if(${CMAKE_CUDA_COMPILER_VERSION} VERSION_GREATER_EQUAL 12.8 AND SCALED_MM_ARCHS)
+      set(SRCS
+        "csrc/quantization/w8a8/cutlass/scaled_mm_c3x_sm120.cu"
+        "csrc/quantization/w8a8/cutlass/c3x/scaled_mm_sm120_fp8.cu"
+        "csrc/quantization/w8a8/cutlass/c3x/scaled_mm_blockwise_sm120_fp8.cu"
+      )
+      set_gencode_flags_for_srcs(
+        SRCS "${SRCS}"
+        CUDA_ARCHS "${SCALED_MM_ARCHS}")
+      list(APPEND VLLM_EXT_SRC "${SRCS}")
+      list(APPEND VLLM_GPU_FLAGS "-DENABLE_SCALED_MM_SM120=1")
+      # Let scaled_mm_c2x know it doesn't need to build these arches
+      list(APPEND SCALED_MM_3X_ARCHS "${SCALED_MM_ARCHS}")
+      message(STATUS "Building scaled_mm_c3x_sm120 for archs: ${SCALED_MM_ARCHS}")
+    else()
+      if (NOT ${CMAKE_CUDA_COMPILER_VERSION} VERSION_GREATER_EQUAL 12.8 AND SCALED_MM_ARCHS)
+        message(STATUS "Not building scaled_mm_c3x_sm120 as CUDA Compiler version is "
+                       "not >= 12.8, we recommend upgrading to CUDA 12.8 or "
+                       "later if you intend on running FP8 quantized models on "
+                       "Blackwell.")
+      else()
+        message(STATUS "Not building scaled_mm_c3x_120 as no compatible archs found "
+                       "in CUDA target architectures")
+      endif()
     endif()
   endif()
 
@@ -656,30 +661,35 @@ if(VLLM_GPU_LANG STREQUAL "CUDA")
   endif()
 
   # The nvfp4_scaled_mm_sm120 kernels for Geforce Blackwell SM120 require
-  # CUDA 12.8 or later
-  if(${CMAKE_CUDA_COMPILER_VERSION} VERSION_GREATER_EQUAL 13.0)
-    cuda_archs_loose_intersection(FP4_ARCHS "12.0f" "${CUDA_ARCHS}")
-  else()
-    cuda_archs_loose_intersection(FP4_ARCHS "12.0a" "${CUDA_ARCHS}")
-  endif()
-  if(${CMAKE_CUDA_COMPILER_VERSION} VERSION_GREATER_EQUAL 12.8 AND FP4_ARCHS)
-    set(SRCS
-      "csrc/quantization/fp4/nvfp4_quant_kernels.cu"
-      "csrc/quantization/fp4/activation_nvfp4_quant_fusion_kernels.cu"
-      "csrc/quantization/fp4/nvfp4_experts_quant.cu"
-      "csrc/quantization/fp4/nvfp4_scaled_mm_sm120_kernels.cu"
-      "csrc/quantization/fp4/nvfp4_blockwise_moe_kernel.cu")
-    set_gencode_flags_for_srcs(
-      SRCS "${SRCS}"
-      CUDA_ARCHS "${FP4_ARCHS}")
-    list(APPEND VLLM_EXT_SRC "${SRCS}")
-    list(APPEND VLLM_GPU_FLAGS "-DENABLE_NVFP4_SM120=1")
-    list(APPEND VLLM_GPU_FLAGS "-DENABLE_CUTLASS_MOE_SM120=1")
-    message(STATUS "Building NVFP4 for archs: ${FP4_ARCHS}")
-  else()
-    message(STATUS "Not building NVFP4 as no compatible archs were found.")
-    # clear FP4_ARCHS
+  # CUDA 12.8 or later. Skip them on Windows for the same SM120 stub issue.
+  if(WIN32)
+    message(STATUS "Not building NVFP4 SM120 on Windows due to NVCC/MSVC alignment stub issues.")
     set(FP4_ARCHS)
+  else()
+    if(${CMAKE_CUDA_COMPILER_VERSION} VERSION_GREATER_EQUAL 13.0)
+      cuda_archs_loose_intersection(FP4_ARCHS "12.0f" "${CUDA_ARCHS}")
+    else()
+      cuda_archs_loose_intersection(FP4_ARCHS "12.0a" "${CUDA_ARCHS}")
+    endif()
+    if(${CMAKE_CUDA_COMPILER_VERSION} VERSION_GREATER_EQUAL 12.8 AND FP4_ARCHS)
+      set(SRCS
+        "csrc/quantization/fp4/nvfp4_quant_kernels.cu"
+        "csrc/quantization/fp4/activation_nvfp4_quant_fusion_kernels.cu"
+        "csrc/quantization/fp4/nvfp4_experts_quant.cu"
+        "csrc/quantization/fp4/nvfp4_scaled_mm_sm120_kernels.cu"
+        "csrc/quantization/fp4/nvfp4_blockwise_moe_kernel.cu")
+      set_gencode_flags_for_srcs(
+        SRCS "${SRCS}"
+        CUDA_ARCHS "${FP4_ARCHS}")
+      list(APPEND VLLM_EXT_SRC "${SRCS}")
+      list(APPEND VLLM_GPU_FLAGS "-DENABLE_NVFP4_SM120=1")
+      list(APPEND VLLM_GPU_FLAGS "-DENABLE_CUTLASS_MOE_SM120=1")
+      message(STATUS "Building NVFP4 for archs: ${FP4_ARCHS}")
+    else()
+      message(STATUS "Not building NVFP4 as no compatible archs were found.")
+      # clear FP4_ARCHS
+      set(FP4_ARCHS)
+    endif()
   endif()
 
   # FP4 Archs and flags
@@ -708,28 +718,34 @@ if(VLLM_GPU_LANG STREQUAL "CUDA")
     set(FP4_ARCHS)
   endif()
 
-  # CUTLASS MLA Archs and flags
-  if(${CMAKE_CUDA_COMPILER_VERSION} VERSION_GREATER_EQUAL 13.0)
-    cuda_archs_loose_intersection(MLA_ARCHS "10.0f;11.0f;12.0f" "${CUDA_ARCHS}")
-  else()
-    cuda_archs_loose_intersection(MLA_ARCHS "10.0a;10.1a;10.3a;12.0a;12.1a" "${CUDA_ARCHS}")
-  endif()
-  if(${CMAKE_CUDA_COMPILER_VERSION} VERSION_GREATER_EQUAL 12.8 AND MLA_ARCHS)
-    set(SRCS
-      "csrc/attention/mla/sm100_cutlass_mla_kernel.cu")
-    set_gencode_flags_for_srcs(
-      SRCS "${SRCS}"
-      CUDA_ARCHS "${MLA_ARCHS}")
-    list(APPEND VLLM_EXT_SRC "${SRCS}")
-    list(APPEND VLLM_GPU_FLAGS "-DENABLE_CUTLASS_MLA=1")
-    # Add MLA-specific include directories only to MLA source files
-    set_source_files_properties(${SRCS}
-      PROPERTIES INCLUDE_DIRECTORIES "${CUTLASS_DIR}/examples/77_blackwell_fmha;${CUTLASS_DIR}/examples/common")
-    message(STATUS "Building CUTLASS MLA for archs: ${MLA_ARCHS}")
-  else()
-    message(STATUS "Not building CUTLASS MLA as no compatible archs were found.")
-    # clear MLA_ARCHS
+  # CUTLASS MLA Archs and flags. Skip on Windows due NVCC/MSVC issues in the
+  # generated CUTLASS MLA host/device stubs.
+  if(WIN32)
+    message(STATUS "Not building CUTLASS MLA on Windows due to NVCC/MSVC incompatibilities.")
     set(MLA_ARCHS)
+  else()
+    if(${CMAKE_CUDA_COMPILER_VERSION} VERSION_GREATER_EQUAL 13.0)
+      cuda_archs_loose_intersection(MLA_ARCHS "10.0f;11.0f;12.0f" "${CUDA_ARCHS}")
+    else()
+      cuda_archs_loose_intersection(MLA_ARCHS "10.0a;10.1a;10.3a;12.0a;12.1a" "${CUDA_ARCHS}")
+    endif()
+    if(${CMAKE_CUDA_COMPILER_VERSION} VERSION_GREATER_EQUAL 12.8 AND MLA_ARCHS)
+      set(SRCS
+        "csrc/attention/mla/sm100_cutlass_mla_kernel.cu")
+      set_gencode_flags_for_srcs(
+        SRCS "${SRCS}"
+        CUDA_ARCHS "${MLA_ARCHS}")
+      list(APPEND VLLM_EXT_SRC "${SRCS}")
+      list(APPEND VLLM_GPU_FLAGS "-DENABLE_CUTLASS_MLA=1")
+      # Add MLA-specific include directories only to MLA source files
+      set_source_files_properties(${SRCS}
+        PROPERTIES INCLUDE_DIRECTORIES "${CUTLASS_DIR}/examples/77_blackwell_fmha;${CUTLASS_DIR}/examples/common")
+      message(STATUS "Building CUTLASS MLA for archs: ${MLA_ARCHS}")
+    else()
+      message(STATUS "Not building CUTLASS MLA as no compatible archs were found.")
+      # clear MLA_ARCHS
+      set(MLA_ARCHS)
+    endif()
   endif()
 
   # CUTLASS MoE kernels
@@ -1066,8 +1082,13 @@ if(VLLM_GPU_LANG STREQUAL "CUDA")
   list(APPEND VLLM_MOE_EXT_SRC
     "csrc/moe/moe_wna16.cu"
     "csrc/moe/grouped_topk_kernels.cu"
-    "csrc/moe/gpt_oss_router_gemm.cu"
     "csrc/moe/router_gemm.cu")
+  if(WIN32)
+    message(STATUS "Not building gpt_oss_router_gemm on Windows due to NVCC/MSVC alignment issues.")
+  else()
+    list(APPEND VLLM_MOE_EXT_SRC
+      "csrc/moe/gpt_oss_router_gemm.cu")
+  endif()
 endif()
 
 if(VLLM_GPU_LANG STREQUAL "CUDA")
@@ -1229,6 +1250,10 @@ define_extension_target(
   INCLUDE_DIRECTORIES ${CUTLASS_TOOLS_UTIL_INCLUDE_DIR}
   USE_SABI 3
   WITH_SOABI)
+
+if(VLLM_GPU_LANG STREQUAL "CUDA" AND NOT WIN32)
+  target_compile_definitions(_moe_C PRIVATE ENABLE_GPT_OSS_ROUTER_GEMM=1)
+endif()
 
 if(VLLM_GPU_LANG STREQUAL "CUDA" AND WIN32)
   target_link_libraries(_moe_C PRIVATE ${CUDA_TOOLKIT_ROOT_DIR}/lib/x64/cublas.lib)
