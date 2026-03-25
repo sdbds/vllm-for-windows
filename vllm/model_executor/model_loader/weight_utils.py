@@ -375,7 +375,7 @@ def get_quant_config(
         )
 
     quant_config_file = quant_config_files[0]
-    with open(quant_config_file) as f:
+    with open(quant_config_file, encoding="utf-8") as f:
         config = json.load(f)
 
         if model_config.quantization == "bitsandbytes":
@@ -418,7 +418,7 @@ def get_sparse_attention_config(
         return {}
 
     # Load the sparse attention config.
-    with open(config_file) as f:
+    with open(config_file, encoding="utf-8") as f:
         config = json.load(f)
     logger.info("Loaded sparse attention config from %s", config_file)
 
@@ -524,7 +524,7 @@ def download_weights_from_hf(
                     revision=revision,
                     subfolder=subfolder,
                 )
-                with open(index_path) as f:
+                with open(index_path, encoding="utf-8") as f:
                     weight_map = json.load(f)["weight_map"]
                 if weight_map:
                     # Extra [] so that weight_map files are treated as a
@@ -634,7 +634,7 @@ def filter_duplicate_safetensors_files(
 
     # Iterate through the weight_map (weight_name: safetensors files)
     # to identify weights that we should use.
-    with open(index_file_name) as f:
+    with open(index_file_name, encoding="utf-8") as f:
         weight_map = json.load(f)["weight_map"]
     weight_files_in_index = set()
     for weight_name in weight_map:
@@ -709,10 +709,10 @@ def np_cache_weights_iterator(
                     with open(param_path, "wb") as f:
                         np.save(f, param.cpu().detach().numpy())
                     weight_names.append(name)
-            with open(weight_names_file, "w") as f:
+            with open(weight_names_file, "w", encoding="utf-8") as f:
                 json.dump(weight_names, f)
 
-    with open(weight_names_file) as f:
+    with open(weight_names_file, encoding="utf-8") as f:
         weight_names = json.load(f)
 
     for name in weight_names:

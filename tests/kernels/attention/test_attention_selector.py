@@ -1,6 +1,7 @@
 # SPDX-License-Identifier: Apache-2.0
 # SPDX-FileCopyrightText: Copyright contributors to the vLLM project
 
+from types import SimpleNamespace
 from unittest.mock import patch
 
 import pytest
@@ -427,3 +428,135 @@ def test_per_head_quant_scales_backend_selection(
                     use_per_head_quant_scales=True,
                 )
             assert backend_name in str(exc_info.value)
+
+
+class _AlwaysValidBackend:
+    @staticmethod
+    def validate_configuration(**kwargs):
+        return []
+
+    @staticmethod
+    def supports_head_size(head_size: int) -> bool:
+        return True
+
+    @staticmethod
+    def supports_dtype(dtype: torch.dtype) -> bool:
+        return True
+
+    @staticmethod
+    def supports_compute_capability(device_capability) -> bool:
+        return True
+
+
+@pytest.mark.skipif(CudaPlatform is None, reason="CudaPlatform not available")
+def test_cuda_backend_selection_falls_back_on_file_not_found_error():
+    attn_selector_config = AttentionSelectorConfig(
+        head_size=128,
+        dtype=torch.float16,
+        kv_cache_dtype="auto",
+        block_size=16,
+        use_mla=False,
+        has_sink=False,
+        use_sparse=False,
+    )
+
+    with (
+        patch.object(
+            CudaPlatform,
+            "get_device_capability",
+            return_value=SimpleNamespace(major=10, minor=0),
+        ),
+        patch.object(
+            AttentionBackendEnum.FLASHINFER,
+            "get_class",
+            side_effect=FileNotFoundError("cudart64_13.dll"),
+        ),
+        patch.object(
+            AttentionBackendEnum.FLASH_ATTN,
+            "get_class",
+            return_value=_AlwaysValidBackend,
+        ),
+        patch.object(
+            AttentionBackendEnum.TRITON_ATTN,
+            "get_class",
+            return_value=_AlwaysValidBackend,
+        ),
+        patch.object(
+            AttentionBackendEnum.FLEX_ATTENTION,
+            "get_class",
+            return_value=_AlwaysValidBackend,
+        ),
+    ):
+        backend_path = CudaPlatform.get_attn_backend_cls(
+            selected_backend=None,
+            attn_selector_config=attn_selector_config,
+        )
+
+    assert backend_path == AttentionBackendEnum.FLASH_ATTN.get_path()
+
+
+@pytest.mark.skipif(CudaPlatform is None, reason="CudaPlatform not available")
+def test_cuda_explicit_backend_converts_file_not_found_to_validation_error():
+    attn_selector_config = AttentionSelectorConfig(
+        head_size=128,
+        dtype=torch.float16,
+        kv_cache_dtype="auto",
+        block_size=16,
+        use_mla=False,
+        has_sink=False,
+        use_sparse=False,
+    )
+
+    with (
+        patch.object(
+            CudaPlatform,
+            "get_device_capability",
+            return_value=SimpleNamespace(major=10, minor=0),
+        ),
+        patch.object(
+            AttentionBackendEnum.FLASHINFER,
+            "get_class",
+            side_effect=FileNotFoundError("cudart64_13.dll"),
+        ),
+    ):
+        with pytest.raises(ValueError, match="FileNotFoundError"):
+            CudaPlatform.get_attn_backend_cls(
+                selected_backend=AttentionBackendEnum.FLASHINFER,
+                attn_selector_config=attn_selector_config,
+            )
+
+
+@pytest.mark.skipif(CudaPlatform is None, reason="CudaPlatform not available")
+def test_cuda_vit_backend_falls_back_on_file_not_found_error():
+    with (
+        patch.object(
+            CudaPlatform,
+            "get_supported_vit_attn_backends",
+            return_value=[
+                AttentionBackendEnum.FLASHINFER,
+                AttentionBackendEnum.FLASH_ATTN,
+                AttentionBackendEnum.TORCH_SDPA,
+            ],
+        ),
+        patch.object(
+            CudaPlatform,
+            "get_device_capability",
+            return_value=SimpleNamespace(major=10, minor=0),
+        ),
+        patch.object(
+            AttentionBackendEnum.FLASHINFER,
+            "get_class",
+            side_effect=FileNotFoundError("cudart64_13.dll"),
+        ),
+        patch.object(
+            AttentionBackendEnum.FLASH_ATTN,
+            "get_class",
+            return_value=_AlwaysValidBackend,
+        ),
+    ):
+        backend = CudaPlatform.get_vit_attn_backend(
+            head_size=128,
+            dtype=torch.float16,
+        )
+
+    assert backend == AttentionBackendEnum.FLASH_ATTN

@@ -269,7 +269,7 @@ def _trace_calls(log_path, root_dir, frame, event, arg=None):
                 last_filename = ""
                 last_lineno = 0
                 last_func_name = ""
-            with open(log_path, "a") as f:
+            with open(log_path, "a", encoding="utf-8") as f:
                 ts = datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S.%f")
                 if event == "call":
                     f.write(

@@ -222,7 +222,7 @@ class ConfigManager:
         self.ensure_base_dir_exists()
         test_file = self._base_dir / ".write_test"
         try:
-            test_file.write_text("test")
+            test_file.write_text("test", encoding="utf-8")
             test_file.unlink()
         except OSError as e:
             raise OSError(
@@ -234,7 +234,7 @@ class ConfigManager:
         if not config_path.exists():
             return {}
         try:
-            with open(config_path) as f:
+            with open(config_path, encoding="utf-8") as f:
                 return json.load(f)
         except (json.JSONDecodeError, OSError) as e:
             logger.error("Failed to load config file %s: %s", config_path, e)
@@ -249,7 +249,7 @@ class ConfigManager:
         for platform_file in sorted(kernel_dir.glob("*.json")):
             platform = platform_file.stem
             try:
-                with open(platform_file) as f:
+                with open(platform_file, encoding="utf-8") as f:
                     platform_data = json.load(f)
                 data[platform] = platform_data
             except (json.JSONDecodeError, OSError) as e:
@@ -277,7 +277,7 @@ class ConfigManager:
         full_data = config_set.to_dict()
         for platform, platform_data in full_data.items():
             platform_path = kernel_dir / f"{platform}.json"
-            with open(platform_path, "w") as f:
+            with open(platform_path, "w", encoding="utf-8") as f:
                 json.dump(platform_data, f, indent=2)
             logger.info("Saved config to: %s", platform_path)
 
@@ -296,7 +296,7 @@ class ConfigManager:
 
         platform_path = self.get_config_file_path(kernel_name, platform)
         platform_path.parent.mkdir(parents=True, exist_ok=True)
-        with open(platform_path, "w") as f:
+        with open(platform_path, "w", encoding="utf-8") as f:
             json.dump(platform_data, f, indent=2)
 
         logger.info("Saved config to: %s", platform_path)

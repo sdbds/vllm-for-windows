@@ -527,7 +527,7 @@ def main(args: argparse.Namespace) -> None:
         }
         result["timestamp"] = datetime.now().isoformat()
 
-        with open(args.output_json, "w") as f:
+        with open(args.output_json, "w", encoding="utf-8") as f:
             json.dump(result, f, indent=2)
         print(f"\nResults saved to {args.output_json}")
 

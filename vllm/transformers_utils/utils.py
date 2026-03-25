@@ -60,7 +60,7 @@ def modelscope_list_repo_files(
 
 
 def _maybe_json_dict(path: str | PathLike) -> dict[str, str]:
-    with open(path) as f:
+    with open(path, encoding="utf-8") as f:
         try:
             return json.loads(f.read())
         except Exception:
@@ -69,7 +69,7 @@ def _maybe_json_dict(path: str | PathLike) -> dict[str, str]:
 
 def _maybe_space_split_dict(path: str | PathLike) -> dict[str, str]:
     parsed_dict = dict[str, str]()
-    with open(path) as f:
+    with open(path, encoding="utf-8") as f:
         for line in f.readlines():
             try:
                 model_name, redirect_name = line.strip().split()

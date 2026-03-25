@@ -421,7 +421,7 @@ class CpuPlatform(Platform):
 
                 if os.path.exists(path):
                     try:
-                        with open(path) as f:
+                        with open(path, encoding="utf-8") as f:
                             s = f.read()
                         cpus: list[int] = []
                         for part in s.strip().split(","):

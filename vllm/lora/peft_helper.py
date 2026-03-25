@@ -105,7 +105,7 @@ class PEFTHelper:
             )
 
         else:
-            with open(lora_config_path) as f:
+            with open(lora_config_path, encoding="utf-8") as f:
                 config = json.load(f)
 
         config["vllm_max_position_embeddings"] = max_position_embeddings

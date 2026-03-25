@@ -111,7 +111,7 @@ class InfEncoder(json.JSONEncoder):
 
 
 def write_to_json(filename: str, records: list) -> None:
-    with open(filename, "w") as f:
+    with open(filename, "w", encoding="utf-8") as f:
         json.dump(
             records,
             f,

@@ -174,7 +174,7 @@ def load_lora_op_config(op_type: str, add_inputs: bool | None) -> dict | None:
 
         # Load json
         logger.info_once(f"Using tuned LoRA kernel configs from {config_path}.")
-        with open(str(config_path)) as f:
+        with open(str(config_path), encoding="utf-8") as f:
             config_data = json.load(f)
     else:
         config_data = None

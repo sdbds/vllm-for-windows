@@ -127,7 +127,7 @@ class VllmPatternMatcherPass(VllmInductorPass):
             lambda i: debug_dump_path / f"patterns.{self.pass_name}.{i}.py"
         )
 
-        with file_path.open("w") as f:
+        with file_path.open("w", encoding="utf-8") as f:
             print(
                 f"# This file was produced by VllmPatternMatcherPass."
                 f"dump_patterns for {self.pass_name}.\n"

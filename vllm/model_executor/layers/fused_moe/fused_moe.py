@@ -1073,7 +1073,7 @@ def get_moe_configs(
 
     for config_file_path in config_file_paths:
         if os.path.exists(config_file_path):
-            with open(config_file_path) as f:
+            with open(config_file_path, encoding="utf-8") as f:
                 logger.info_once(
                     "Using configuration from %s for MoE layer.",
                     config_file_path,

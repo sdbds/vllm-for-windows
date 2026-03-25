@@ -366,7 +366,7 @@ def get_w8a8_block_int8_configs(
         os.path.dirname(os.path.realpath(__file__)), "configs", json_file_name
     )
     if os.path.exists(config_file_path):
-        with open(config_file_path) as f:
+        with open(config_file_path, encoding="utf-8") as f:
             logger.info(
                 "Using configuration from %s for W8A8 Block INT8 kernel.",
                 config_file_path,

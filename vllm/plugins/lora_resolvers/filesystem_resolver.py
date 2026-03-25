@@ -31,7 +31,7 @@ class FilesystemResolver(LoRAResolver):
             adapter_config_path = os.path.join(lora_path, "adapter_config.json")
 
             if os.path.exists(adapter_config_path):
-                with open(adapter_config_path) as file:
+                with open(adapter_config_path, encoding="utf-8") as file:
                     adapter_config = json.load(file)
                 if (
                     adapter_config["peft_type"] == "LORA"

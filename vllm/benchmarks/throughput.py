@@ -964,6 +964,6 @@ def main(args: argparse.Namespace):
             "requests_per_second": len(requests) / elapsed_time,
             "tokens_per_second": total_num_tokens / elapsed_time,
         }
-        with open(args.output_json, "w") as f:
+        with open(args.output_json, "w", encoding="utf-8") as f:
             json.dump(results, f, indent=4)
         save_to_pytorch_benchmark_format(args, results)

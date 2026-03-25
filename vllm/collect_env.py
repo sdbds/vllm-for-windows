@@ -499,7 +499,7 @@ def is_uv_venv():
         return True
     pyvenv_cfg_path = os.path.join(sys.prefix, "pyvenv.cfg")
     if os.path.exists(pyvenv_cfg_path):
-        with open(pyvenv_cfg_path, "r") as f:
+        with open(pyvenv_cfg_path, "r", encoding="utf-8") as f:
             return any(line.startswith("uv = ") for line in f)
     return False
 

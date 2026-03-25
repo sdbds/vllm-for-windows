@@ -236,8 +236,8 @@ class CudaPlatformBase(Platform):
                     device_capability=device_capability,
                     **attn_selector_config._asdict(),
                 )
-            except ImportError:
-                invalid_reasons_i = ["ImportError"]
+            except (ImportError, OSError) as exc:
+                invalid_reasons_i = [type(exc).__name__]
             if invalid_reasons_i:
                 invalid_reasons[backend] = (priority, invalid_reasons_i)
             else:
@@ -263,8 +263,8 @@ class CudaPlatformBase(Platform):
                     device_capability=device_capability,
                     **attn_selector_config._asdict(),
                 )
-            except ImportError:
-                invalid_reasons = ["ImportError"]
+            except (ImportError, OSError) as exc:
+                invalid_reasons = [type(exc).__name__]
             if invalid_reasons:
                 raise ValueError(
                     f"Selected backend {selected_backend} is not valid for "
@@ -392,7 +392,7 @@ class CudaPlatformBase(Platform):
                         scope="local",
                     )
                     return vit_attn_backend
-            except ImportError:
+            except (ImportError, OSError):
                 pass
 
         return AttentionBackendEnum.TORCH_SDPA

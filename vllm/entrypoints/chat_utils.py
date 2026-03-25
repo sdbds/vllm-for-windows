@@ -1128,7 +1128,7 @@ def _load_chat_template(
         return chat_template
 
     try:
-        with open(chat_template) as f:
+        with open(chat_template, encoding="utf-8") as f:
             return f.read()
     except OSError as e:
         if isinstance(chat_template, Path):
@@ -1143,7 +1143,7 @@ def _load_chat_template(
 
             builtin_template_path = CHAT_TEMPLATES_DIR / chat_template
             try:
-                with open(builtin_template_path) as f:
+                with open(builtin_template_path, encoding="utf-8") as f:
                     return f.read()
             except OSError:
                 msg = (

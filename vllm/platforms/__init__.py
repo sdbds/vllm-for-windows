@@ -155,7 +155,7 @@ def _is_amd_zen_cpu() -> bool:
     """Detect AMD CPU with AVX-512 via /proc/cpuinfo."""
     if not os.path.exists("/proc/cpuinfo"):
         return False
-    with open("/proc/cpuinfo") as f:
+    with open("/proc/cpuinfo", encoding="utf-8") as f:
         cpuinfo = f.read()
     return "AuthenticAMD" in cpuinfo and "avx512" in cpuinfo
 

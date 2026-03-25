@@ -178,7 +178,7 @@ class CompilerManager:
 
         if not disable_cache and os.path.exists(self.cache_file_path):
             # load the cache from the file
-            with open(self.cache_file_path) as f:
+            with open(self.cache_file_path, encoding="utf-8") as f:
                 # we use ast.literal_eval to parse the data
                 # because it is a safe way to parse Python literals.
                 # do not use eval(), it is unsafe.
@@ -211,7 +211,7 @@ class CompilerManager:
             return
         printer = pprint.PrettyPrinter(indent=4)
         data = printer.pformat(self.cache)
-        with open(self.cache_file_path, "w") as f:
+        with open(self.cache_file_path, "w", encoding="utf-8") as f:
             f.write(data)
 
     def load(
@@ -1004,7 +1004,7 @@ class VllmBackend:
                 # e.g. exec(). We can't actually check these.
                 continue
             try:
-                with open(filepath) as f:
+                with open(filepath, encoding="utf-8") as f:
                     hash_content.append(f.read())
             except (OSError, UnicodeDecodeError):
                 logger.warning("Failed to read file %s", filepath)
@@ -1078,7 +1078,7 @@ class VllmBackend:
             )
             meta_path = os.path.join(local_cache_dir, "cache_key_factors.json")
             if not os.path.exists(meta_path):
-                with open(meta_path, "w") as f:
+                with open(meta_path, "w", encoding="utf-8") as f:
                     json.dump(
                         {
                             "env": env_factors,  # raw factors used for env_hash
@@ -1222,7 +1222,7 @@ class VllmBackend:
                 + self.split_gm.print_readable(print_output=False)
             )
             src = src.replace("<lambda>", "GraphModule")
-            with open(graph_path, "w") as f:
+            with open(graph_path, "w", encoding="utf-8") as f:
                 f.write(src)
 
             logger.debug_once(

@@ -308,7 +308,7 @@ def find_loaded_library(lib_name: str) -> str | None:
     path = None
     if platform.system() != 'Windows':
         found = False
-        with open("/proc/self/maps") as f:
+        with open("/proc/self/maps", encoding="utf-8") as f:
             for line in f:
                 if lib_name in line:
                     found = True

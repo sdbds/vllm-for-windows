@@ -127,7 +127,7 @@ def run_benchmark(
         run_number,
     )
 
-    with output_path.open("w") as f:
+    with output_path.open("w", encoding="utf-8") as f:
         json.dump(run_data, f, indent=4)
 
     print("[END BENCHMARK]")
@@ -243,7 +243,9 @@ def run_comb(
     if dry_run:
         return None
 
-    with _get_comb_run_path(base_path, run_number=None).open("w") as f:
+    with _get_comb_run_path(base_path, run_number=None).open(
+        "w", encoding="utf-8"
+    ) as f:
         json.dump(comb_data, f, indent=4)
 
     return comb_data

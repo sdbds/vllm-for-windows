@@ -491,7 +491,7 @@ class FlexibleArgumentParser(ArgumentParser):
 
         config: dict[str, Any] = {}
         try:
-            with open(file_path) as config_file:
+            with open(file_path, encoding="utf-8") as config_file:
                 config = yaml.safe_load(config_file)
         except Exception as ex:
             logger.error(

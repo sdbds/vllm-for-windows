@@ -118,7 +118,7 @@ def load_log_config(log_config_file: str | None) -> dict | None:
     if not log_config_file:
         return None
     try:
-        with open(log_config_file) as f:
+        with open(log_config_file, encoding="utf-8") as f:
             return json.load(f)
     except Exception as e:
         logger.warning(

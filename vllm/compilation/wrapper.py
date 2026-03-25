@@ -247,7 +247,7 @@ class TorchCompileWithNoGuardsWrapper:
 
                     src = depyf.decompile(new_code)
 
-                    with open(decompiled_file, "w") as f:
+                    with open(decompiled_file, "w", encoding="utf-8") as f:
                         f.write(src)
 
                     logger.debug("Dynamo transformed code saved to %s", decompiled_file)

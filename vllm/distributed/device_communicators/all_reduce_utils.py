@@ -370,12 +370,12 @@ def gpu_p2p_access_check(src: int, tgt: int) -> bool:
                 result = pickle.load(f)
         for _i, _j, r in zip(batch_src, batch_tgt, result):
             cache[f"{_i}->{_j}"] = r
-        with open(path, "w") as f:
+        with open(path, "w", encoding="utf-8") as f:
             json.dump(cache, f, indent=4)
     if is_distributed:
         get_world_group().barrier()
     logger.info("reading GPU P2P access cache from %s", path)
-    with open(path) as f:
+    with open(path, encoding="utf-8") as f:
         cache = json.load(f)
     _gpu_p2p_access_cache = cache
     return _gpu_p2p_access_cache[f"{src}->{tgt}"]

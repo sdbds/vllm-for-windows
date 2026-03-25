@@ -94,7 +94,7 @@ def _detect_cloud_provider() -> str:
     for vendor_file in vendor_files:
         path = Path(vendor_file)
         if path.is_file():
-            file_content = path.read_text().lower()
+            file_content = path.read_text(encoding="utf-8").lower()
             for identifier, provider in cloud_identifiers.items():
                 if identifier in file_content:
                     return provider
@@ -269,7 +269,7 @@ class UsageMessage:
     def _write_to_file(self, data: dict[str, Any]) -> None:
         os.makedirs(os.path.dirname(_USAGE_STATS_JSON_PATH), exist_ok=True)
         Path(_USAGE_STATS_JSON_PATH).touch(exist_ok=True)
-        with open(_USAGE_STATS_JSON_PATH, "a") as f:
+        with open(_USAGE_STATS_JSON_PATH, "a", encoding="utf-8") as f:
             json.dump(data, f)
             f.write("\n")
 

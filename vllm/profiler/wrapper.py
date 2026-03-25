@@ -259,7 +259,7 @@ class TorchProfilerWrapper(WorkerProfiler):
             # as standard file I/O doesn't work with URI schemes
             if not _is_uri_path(profiler_dir):
                 profiler_out_file = f"{profiler_dir}/profiler_out_{rank}.txt"
-                with open(profiler_out_file, "w") as f:
+                with open(profiler_out_file, "w", encoding="utf-8") as f:
                     print(table, file=f)
 
             # only print profiler results on rank 0

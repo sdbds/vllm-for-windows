@@ -769,7 +769,7 @@ def tensorize_lora_adapter(lora_path: str, tensorizer_config: TensorizerConfig):
             f"Must be a .safetensors or .bin file."
         )
 
-    with open(config_path) as f:
+    with open(config_path, encoding="utf-8") as f:
         config = json.load(f)
 
     tensorizer_args = tensorizer_config._construct_tensorizer_args()

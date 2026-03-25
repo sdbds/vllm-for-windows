@@ -294,7 +294,10 @@ class cmake_build_ext(build_ext):
         # Make sure we use the nvcc from CUDA_HOME
         if _is_cuda() and CUDA_HOME is not None:
             if IS_WINDOWS:
-                cmake_args += [f"-DCMAKE_CUDA_COMPILER={CUDA_HOME.replace("\\", "/")}/bin/nvcc.exe"]
+                cuda_home_posix = CUDA_HOME.replace("\\", "/")
+                cmake_args += [
+                    f"-DCMAKE_CUDA_COMPILER={cuda_home_posix}/bin/nvcc.exe"
+                ]
             else:
                 cmake_args += [f"-DCMAKE_CUDA_COMPILER={CUDA_HOME}/bin/nvcc"]
         elif _is_hip() and ROCM_HOME is not None:
@@ -936,7 +939,7 @@ def get_requirements() -> list[str]:
     requirements_dir = ROOT_DIR / "requirements"
 
     def _read_requirements(filename: str) -> list[str]:
-        with open(requirements_dir / filename) as f:
+        with open(requirements_dir / filename, encoding="utf-8") as f:
             requirements = f.read().strip().split("\n")
         resolved_requirements = []
         for line in requirements:

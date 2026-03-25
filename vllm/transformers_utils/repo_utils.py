@@ -308,7 +308,7 @@ def get_hf_file_to_dict(
         file_path = _try_download_from_hf_hub(model, file_name, revision)
 
     if file_path is not None and file_path.is_file():
-        with open(file_path) as file:
+        with open(file_path, encoding="utf-8") as file:
             return json.load(file)
 
     return None

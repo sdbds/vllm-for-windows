@@ -17,7 +17,7 @@ RAY_NON_CARRY_OVER_ENV_VARS_FILE = os.path.join(
 
 try:
     if os.path.exists(RAY_NON_CARRY_OVER_ENV_VARS_FILE):
-        with open(RAY_NON_CARRY_OVER_ENV_VARS_FILE) as f:
+        with open(RAY_NON_CARRY_OVER_ENV_VARS_FILE, encoding="utf-8") as f:
             RAY_NON_CARRY_OVER_ENV_VARS = set(json.load(f))
     else:
         RAY_NON_CARRY_OVER_ENV_VARS = set()

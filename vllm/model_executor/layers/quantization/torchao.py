@@ -185,11 +185,11 @@ class TorchAOConfig(QuantizationConfig):
         config = Float8DynamicActivationFloat8WeightConfig(granularity=PerRow())
         fn = "torchao_config.json"
 
-        with open(fn, "w") as f:
+        with open(fn, "w", encoding="utf-8") as f:
             f.write(json.dumps(config_to_dict(config)))
         ```
         """
-        with open(config_file) as f:
+        with open(config_file, encoding="utf-8") as f:
             f.seek(0)
             f_read = f.read()
             config_dict = json.loads(f_read)

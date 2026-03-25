@@ -167,6 +167,6 @@ def main(args: argparse.Namespace):
             "latencies": latencies.tolist(),
             "percentiles": dict(zip(percentages, percentiles.tolist())),
         }
-        with open(args.output_json, "w") as f:
+        with open(args.output_json, "w", encoding="utf-8") as f:
             json.dump(results, f, indent=4)
         save_to_pytorch_benchmark_format(args, results)
