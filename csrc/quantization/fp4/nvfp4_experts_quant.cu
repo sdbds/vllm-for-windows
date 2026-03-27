@@ -364,7 +364,7 @@ static void validate_fp4_experts_quant_inputs(
   TORCH_CHECK(input.scalar_type() == HALF_TYPE || input.scalar_type() == BF16_TYPE);
   TORCH_CHECK(input_global_scale.scalar_type() == FLOAT_TYPE);
   TORCH_CHECK(input_offset_by_experts.scalar_type() == INT_TYPE);
-  TORCH_CHECK(output_scale_offset_by_experts.scalar_type() == INT_TYPE;
+  TORCH_CHECK(output_scale_offset_by_experts.scalar_type() == INT_TYPE);
   // output is uint8 (two nvfp4 values are packed into one uint8)
   // output_scale is int32 (four fp8 values are packed into one int32)
   TORCH_CHECK(output.scalar_type() == UINT8_TYPE);
