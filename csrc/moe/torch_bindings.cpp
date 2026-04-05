@@ -133,7 +133,6 @@ TORCH_LIBRARY_EXPAND(TORCH_EXTENSION_NAME, m) {
   m.def("dsv3_router_gemm(Tensor! output, Tensor mat_a, Tensor mat_b) -> ()");
   // conditionally compiled so impl registration is in source file
 #endif
-#endif
 }
 
 REGISTER_EXTENSION(TORCH_EXTENSION_NAME)
